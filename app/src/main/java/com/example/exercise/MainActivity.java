@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     CountDownTimer countDownTimer;
 
     boolean isExercise = true;
+    boolean isTicking = false;
 
     private Button startbtn, stopbtn, changebtn;
     private TextView exercisetv, breaktv;
@@ -78,33 +79,40 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startTimer(){
-        if (isExercise){
-            timeLeftMillSecond = exerciseTime*1000;
-            isExercise = false;
-        }else{
-            timeLeftMillSecond = breakTime*1000;
-            isExercise = true;
-        }
-        countDownTimer = new CountDownTimer(timeLeftMillSecond,1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                timeLeftMillSecond = millisUntilFinished;
-                updateTimerView();
+        if (!isTicking){
+            isTicking = true;
+            if (isExercise){
+                timeLeftMillSecond = exerciseTime*1000;
+                isExercise = false;
+            }else{
+                timeLeftMillSecond = breakTime*1000;
+                isExercise = true;
             }
+            countDownTimer = new CountDownTimer(timeLeftMillSecond,1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    timeLeftMillSecond = millisUntilFinished;
+                    updateTimerView();
+                }
 
-            @Override
-            public void onFinish() {
-                mediaPlayer.start();
-                startTimer();
-            }
-        }.start();
+                @Override
+                public void onFinish() {
+                    mediaPlayer.start();
+                    isTicking = false;
+                    startTimer();
+                }
+            }.start();
+        }
     }
 
     public void stopTimer(){
-        isExercise = true;
-        timeLeftMillSecond = 0;
-        updateTimerView();
-        countDownTimer.cancel();
+        if (isTicking){
+            countDownTimer.cancel();
+            isTicking = false;
+            isExercise = true;
+            timeLeftMillSecond = 0;
+            updateTimerView();
+        }
     }
 
     public void updateTimerView(){
